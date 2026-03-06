@@ -83,6 +83,11 @@ class Builder:
         self._html = self._context.html
         self._timestamp = self._context.timestamp
 
+    def _try_handle_html(self, value: str):
+        if value.startswith("*HTML*"):
+            return self._string(value[6:].lstrip(), escape=False)
+        return self._html(value)
+
     def _get_status(self, item, note_only=False):
         model = (
             STATUSES[item.status],
@@ -147,7 +152,7 @@ class SuiteBuilder(Builder):
     def _yield_metadata(self, suite):
         for name, value in suite.metadata.items():
             yield self._string(name)
-            yield self._html(value)
+            yield self._try_handle_html(value)
 
     def _get_statistics(self, suite):
         stats = suite.statistics  # Access property only once
